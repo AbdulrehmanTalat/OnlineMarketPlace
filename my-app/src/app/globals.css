@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.custom-image-container {
+    width: 300px; /* Adjust the width as desired */
+    height: 350px; /* Adjust the height as desired */
+  }
+  
+  .custom-image {
+    max-width: none !important;
+    height: auto !important;
+  }
