@@ -38,7 +38,7 @@ const Product: React.FC = () => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-y-6rem py-8 px-1">
           {products.map((item) => (
-            <div className="w-full">
+            <div className="w-full" key={item._id}>
               <div className="mx-11 transform hover:scale-110">
                 <Link href="#">
                   <div className="product-card">
