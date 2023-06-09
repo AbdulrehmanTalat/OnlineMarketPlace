@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { client } from '../../lib/sanityClient';
 import { IProduct } from '../../lib/IProduct';
 import AllProducts from '../common/allproducts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Female() {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -20,7 +21,15 @@ export default function Female() {
 
     fetchProductData();
   }, []);
-
+  if (!products) {
+    return (<div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>);
+  }
   return (
     <div className="container mx-auto flex flex-wrap justify-center items-center py-12">
       {products?.map((prod, index) => (

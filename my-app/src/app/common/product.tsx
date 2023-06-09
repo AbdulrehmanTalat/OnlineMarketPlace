@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { client } from "../../lib/sanityClient";
 import { urlForImage } from '../../../sanity/lib/image';
 import { IProduct } from '@/lib/IProduct';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const getProducts = async () => {
   try {
@@ -29,6 +30,15 @@ const Product: React.FC = () => {
     };
     fetchProductData();
   }, []);
+  if (!products) {
+    return (<div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>);
+  }
   return (
     <section className="mt-16">
       <div className="subtitle text-center">

@@ -11,6 +11,7 @@ import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/../sanity/lib/client';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import { IProduct } from '@/lib/IProduct';
+import { Skeleton } from '@/components/ui/skeleton';
 // import { DineMarketContext } from '@/context/DineMarketContext';
 
 export default function ProductInformation() {
@@ -31,7 +32,7 @@ export default function ProductInformation() {
 
     fetchProductData();
   }, []);
-  
+
   const [index, setIndex] = useState(0);
   const [size, setSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -42,7 +43,13 @@ export default function ProductInformation() {
   const careList: string[] = productInfo?.use.split('.') ?? [];
   const productImage = productInfo?.images as SanityImageSource;
   if (!productInfo) {
-    return <div>Loading...</div>;
+    return (<div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>);
   }
   return (
     <div className='mx-auto flex max-w-[1560px] flex-wrap justify-center gap-5 rounded-xl bg-[#f3f3f35d] px-5 py-12 sm:px-10 md:px-16 lg:px-20'>
