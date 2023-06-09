@@ -1,32 +1,25 @@
-'use client'
 import React, { useEffect, useState } from 'react';
-import { client } from "../../lib/sanityClient";
+import { client } from '../../lib/sanityClient';
 import { IProduct } from '../../lib/IProduct';
 import AllProducts from '../common/allproducts';
 
-export const GetProducts = async () => {
-  try {
-    const res = await client.fetch(`*[_type=='product']`);
-    return res;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    throw error;
-  }
-};
-
-export default function All () {
+export default function All() {
   const [products, setProducts] = useState<IProduct[]>([]);
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
-        const fetchedProducts: IProduct[] = await GetProducts();
-        setProducts(fetchedProducts);
+        const res = await client.fetch(`*[_type=='product']`);
+        setProducts(res);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching products:", error);
+        throw error;
       }
     };
+
     fetchProductData();
   }, []);
+
   return (
     <div className="container mx-auto flex flex-wrap justify-center items-center py-12">
       {products?.map((prod, index) => (
@@ -36,4 +29,4 @@ export default function All () {
       ))}
     </div>
   );
-};
+}
