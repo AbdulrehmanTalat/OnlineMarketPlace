@@ -4,7 +4,7 @@ import { client } from "../../lib/sanityClient";
 import { IProduct } from '../../lib/IProduct';
 import AllProducts from '../common/allproducts';
 
-export const getProducts = async () => {
+export const GetProducts = async () => {
   try {
     const res = await client.fetch(`*[_type=='product']`);
     return res;
@@ -19,7 +19,7 @@ const All: React.FC = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       try {
-        const fetchedProducts: IProduct[] = await getProducts();
+        const fetchedProducts: IProduct[] = await GetProducts();
         setProducts(fetchedProducts);
       } catch (error) {
         console.error(error);
