@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import { client } from '../../lib/sanityClient';
 import { IProduct } from '../../lib/IProduct';
