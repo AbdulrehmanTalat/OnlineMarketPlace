@@ -10,35 +10,28 @@ import { urlForImage } from '../../../sanity/lib/image';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/../sanity/lib/client';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import { IProduct } from '@/lib/IProduct';
 // import { DineMarketContext } from '@/context/DineMarketContext';
-
-interface IProduct {
-  gender: string;
-  _rev: string;
-  _type: string;
-  title: string;
-  _id: string;
-  _updatedAt: string;
-  images: {
-    _type: string;
-    asset: {
-      _ref: string;
-      _type: string;
-    };
-  };
-  use: string;
-  type: string;
-  size: string[];
-  price: number;
-  _createdAt: string;
-  details: string;
-}
 
 export default function ProductInformation() {
   const searchParams = useSearchParams();
   const search = searchParams.get('search');
-  const productInfoString = searchParams.get('productInfo');
-  const [productInfo, setProductInfo] = useState<IProduct | null>(null);
+  const productIdString = searchParams.get('productId');
+  const [productInfo, setProductInfo] = useState<IProduct>();
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const res = await client.fetch(`*[_type == 'product' && _id == '${productIdString}']`);
+        setProductInfo(res[0]);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        throw error;
+      }
+    };
+
+    fetchProductData();
+  }, []);
+  
   const [index, setIndex] = useState(0);
   const [size, setSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -46,15 +39,11 @@ export default function ProductInformation() {
   function urlFor(source: SanityImageSource) {
     return builder.image(source);
   }
-
-  useEffect(() => {
-    if (productInfoString) {
-      const parsedProductInfo = JSON.parse(productInfoString) as IProduct;
-      setProductInfo(parsedProductInfo);
-    }
-  }, [productInfoString]);
   const careList: string[] = productInfo?.use.split('.') ?? [];
   const productImage = productInfo?.images as SanityImageSource;
+  if (!productInfo) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className='mx-auto flex max-w-[1560px] flex-wrap justify-center gap-5 rounded-xl bg-[#f3f3f35d] px-5 py-12 sm:px-10 md:px-16 lg:px-20'>
       <div className=' flex w-full flex-col items-start space-y-8 md:flex-row md:space-x-7 md:space-y-0 lg:space-x-10'>
@@ -68,7 +57,7 @@ export default function ProductInformation() {
           <div className='flex w-full space-x-10 justify-between'>
             <div className='flex flex-col space-y-4 min-w-[50px] custom1:min-w-[80px] sm:min-w-[100px]'>
               <Image
-                src={urlFor(productImage).width(700).url()}
+                src={productInfo && urlForImage(productInfo.images).url()}
                 className='cursor-pointer object-cover w-[50px] h-auto custom1:min-w-[80px] sm:min-w-[100px] bg-blue-100'
                 alt='product image'
                 width={100}
@@ -78,7 +67,7 @@ export default function ProductInformation() {
             </div>
             <div className='overflow-hidden'>
               <Image
-                src={urlFor(productImage).width(700).url()}
+                src={productInfo && urlForImage(productInfo.images).url()}
                 alt='product image'
                 width={750}
                 height={750}

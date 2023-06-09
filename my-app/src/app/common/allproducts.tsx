@@ -26,7 +26,7 @@ const AllProducts: React.FC<AllProductsProps> = ({ allproducts }) => {
     <div>
       <Link href={{
         pathname: 'ProductInformation',
-        query: { productInfo: `${JSON.stringify(allproducts)}` },
+        query: { productId: `${allproducts._id}` },
       }}>
         <div className='Allproduct-card'>
           <img
