@@ -1,32 +1,26 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { client } from "../../lib/sanityClient";
+import { client } from '../../lib/sanityClient';
 import { IProduct } from '../../lib/IProduct';
 import AllProducts from '../common/allproducts';
 
-export const getProducts = async () => {
-  try {
-    const res = await client.fetch(`*[_type=='product' && gender == 'Kid']`);
-    return res;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    throw error;
-  }
-};
-
-const Kids: React.FC = () => {
+export default function Kid() {
   const [products, setProducts] = useState<IProduct[]>([]);
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
-        const fetchedProducts: IProduct[] = await getProducts();
-        setProducts(fetchedProducts);
+        const res = await client.fetch(`*[_type=='product' && gender == 'Kid']`);
+        setProducts(res);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching products:", error);
+        throw error;
       }
     };
+
     fetchProductData();
   }, []);
+
   return (
     <div className="container mx-auto flex flex-wrap justify-center items-center py-12">
       {products?.map((prod, index) => (
@@ -36,6 +30,4 @@ const Kids: React.FC = () => {
       ))}
     </div>
   );
-};
-
-export default Kids;
+}
