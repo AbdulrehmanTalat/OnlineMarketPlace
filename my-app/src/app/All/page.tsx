@@ -14,7 +14,7 @@ export const GetProducts = async () => {
   }
 };
 
-const All: React.FC = () => {
+export default function All () {
   const [products, setProducts] = useState<IProduct[]>([]);
   useEffect(() => {
     const fetchProductData = async () => {
@@ -37,5 +37,3 @@ const All: React.FC = () => {
     </div>
   );
 };
-
-export default All;
