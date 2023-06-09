@@ -1,13 +1,23 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { RiSearchLine, RiShoppingCartLine, RiMenuLine, RiCloseLine } from 'react-icons/ri';
 import logo from '../../../public/images/Logo.webp';
+import Link from 'next/link';
+import { getUserIdentifier, setUserIdentifier } from '@/lib/cookie';
+import { v4 as uuidv4 } from 'uuid';
 
 const Navbar = () => {
   const [showCart, setShowCart] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
-
+  useEffect(() => {
+    const identifier = getUserIdentifier();
+    if (!identifier) {
+      const newIdentifier = uuidv4();
+      setUserIdentifier(newIdentifier);
+    } 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <nav className="bg-white">
       <div className="container mx-auto px-4 py-4 md:py-6">
@@ -18,16 +28,24 @@ const Navbar = () => {
 
           <div className="hidden md:flex space-x-4 flex-1 justify-center items-center">
             <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-              <span className="text-gray-700 hover:text-gray-900">Female</span>
+              <Link href={'Female'}>
+                <div className="text-gray-700 hover:text-gray-900">Female</div>
+              </Link>
             </div>
             <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-              <span className="text-gray-700 hover:text-gray-900">Male</span>
+              <Link href={'Male'}>
+                <div className="text-gray-700 hover:text-gray-900">Male</div>
+              </Link>
             </div>
             <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-              <span className="text-gray-700 hover:text-gray-900">Kids</span>
+              <Link href={'Kids'}>
+                <div className="text-gray-700 hover:text-gray-900">Kids</div>
+              </Link>
             </div>
             <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-              <span className="text-gray-700 hover:text-gray-900">All Products</span>
+              <Link href={'All'}>
+                <div className="text-gray-700 hover:text-gray-900">All Products</div>
+              </Link>
             </div>
           </div>
 
@@ -92,17 +110,19 @@ const Navbar = () => {
               )}
             </div>
             <div className="space-y-4 flex flex-col items-center">
+              <Link href={'Female'}>
+                <div className="text-gray-700 hover:text-gray-900">Female</div>
+              </Link>
+              <Link href={'Male'}>
+                <div className="text-gray-700 hover:text-gray-900">Male</div>
+              </Link>
+              <Link href={'Kids'}>
+                <div className="text-gray-700 hover:text-gray-900">Kids</div>
+              </Link>
               <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-                <span className="text-gray-700 hover:text-gray-900">Female</span>
-              </div>
-              <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-                <span className="text-gray-700 hover:text-gray-900">Male</span>
-              </div>
-              <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-                <span className="text-gray-700 hover:text-gray-900">Kids</span>
-              </div>
-              <div className="cursor-pointer" onClick={() => setToggleMenu(false)}>
-                <span className="text-gray-700 hover:text-gray-900">All Products</span>
+                <Link href={'All'}>
+                  <div className="text-gray-700 hover:text-gray-900">All Products</div>
+                </Link>
               </div>
             </div>
           </div>
