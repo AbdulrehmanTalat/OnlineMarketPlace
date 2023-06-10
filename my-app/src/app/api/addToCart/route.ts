@@ -34,18 +34,15 @@ export async function POST(request: NextRequest) {
           },
         })
         .returning();
-      const responseData = {
-        cart: response,
-      };
-
-      return NextResponse.json(responseData, { status: 200 });
+      return NextResponse.json(response, { status: 200 });
     } catch (error) {
-      return NextResponse.json({ error: true }, { status: 500 });
+      return NextResponse.json({ error: false }, { status: 500 });
     }
   } else {
-    return NextResponse.json({ error: true }, { status: 500 });
+    return NextResponse.json({ error: false }, { status: 500 });
   }
 }
+
 
 
 

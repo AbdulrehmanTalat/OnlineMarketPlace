@@ -63,46 +63,40 @@ export default function ProductInformation() {
     </div>);
   }
   async function addToCart() {
-    const toastId = toast.loading('Adding to cart');
+    const toastId = toast.loading('adding to cart');
     setBDisabled(true);
+    fetch(`${baseUrl}api/addToCart`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json',Authorization: `${identifier}`, },
+      body: JSON.stringify({
+        productName: productInfo?.title,
+        productType: productInfo?.type,
+        productSlug: productInfo?._id,
+        productImageUrl: imagesUrls[0],
+        productSelectedSize: selectedSize,
+        productQuantity: quantity,
+        productPrice: productInfo?.price,
+      }),
+      cache: 'no-store',
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        toast.dismiss(toastId);
 
-    const requestBody = {
-      productName: productInfo?.title,
-      productType: productInfo?.type,
-      productSlug: productInfo?._id,
-      productImageUrl: imagesUrls[0],
-      productSelectedSize: selectedSize,
-      productQuantity: quantity,
-      productPrice: productInfo?.price,
-    };
-
-    try {
-      const response = await fetch(`${baseUrl}api/addToCart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `${identifier}` },
-        body: JSON.stringify(requestBody),
-        cache: 'no-store',
-      });
-
-      const responseData = await response.json();
-      toast.dismiss(toastId);
-      console.log(responseData.cart)
-      const resp = responseData.cart;
-      debugger;
-      if (resp && resp.length > 0) {
-        if (dmContext) {
-          dmContext.incCartItems(quantity);
+        if (response[0].product_quantity) {
+          dmContext?.incCartItems(quantity);
+          toast.success('added to cart');
+        } else {
+          toast.error('adding to cart failed');
         }
-        toast.success('Added to cart');
-      } else {
-        toast.error('Adding to cart failed');
-      }
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error('Adding to cart failed');
-    } finally {
-      setBDisabled(false);
-    }
+      })
+      .catch(() => {
+        toast.dismiss(toastId);
+        toast.error('adding to cart failed');
+      })
+      .finally(() => {
+        setBDisabled(false);
+      });
   }
   return (
     <div className='mx-auto flex max-w-[1560px] flex-wrap justify-center gap-5 rounded-xl bg-[#f3f3f35d] px-5 py-12 sm:px-10 md:px-16 lg:px-20'>
