@@ -1,10 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Dot } from 'lucide-react';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
-import { getUserIdentifier } from '@/lib/cookie';
-import toast, { Toaster } from 'react-hot-toast';
 import Image from 'next/image';
 import { urlForImage } from '../../../sanity/lib/image';
 import imageUrlBuilder from '@sanity/image-url';
@@ -12,9 +10,16 @@ import { client } from '@/../sanity/lib/client';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import { IProduct } from '@/lib/IProduct';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '../../components/ui/button';
+import { getUserIdentifier } from '@/lib/cookie';
+import toast, { Toaster } from 'react-hot-toast';
+import { DineMarketContext } from '../../app/context/DineMarketContext';
 // import { DineMarketContext } from '@/context/DineMarketContext';
 
 export default function ProductInformation() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const identifier = getUserIdentifier();
+  const dmContext = useContext(DineMarketContext);
   const searchParams = useSearchParams();
   const search = searchParams.get('search');
   const productIdString = searchParams.get('productId');
@@ -32,16 +37,22 @@ export default function ProductInformation() {
 
     fetchProductData();
   }, []);
-
-  const [index, setIndex] = useState(0);
-  const [size, setSize] = useState('');
+  let imagesUrls: string[] = [];
+  const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+  const [sizeIndex, setSizeIndex] = useState(2);
+  const [selectedSize, setSelectedSize] = useState(sizes[sizeIndex]);
+  // product quantitiy by default 1
   const [quantity, setQuantity] = useState(1);
+  // State variable for disabling the button when request to add data is sent
+  const [bDisabled, setBDisabled] = useState(false);
   const builder = imageUrlBuilder(client);
   function urlFor(source: SanityImageSource) {
     return builder.image(source);
   }
   const careList: string[] = productInfo?.use.split('.') ?? [];
-  const productImage = productInfo?.images as SanityImageSource;
+  if (productInfo && productInfo != null) {
+    imagesUrls.push(urlFor(productInfo.images).width(700).url());
+  }
   if (!productInfo) {
     return (<div className="flex items-center space-x-4">
       <Skeleton className="h-12 w-12 rounded-full" />
@@ -50,6 +61,48 @@ export default function ProductInformation() {
         <Skeleton className="h-4 w-[200px]" />
       </div>
     </div>);
+  }
+  async function addToCart() {
+    const toastId = toast.loading('Adding to cart');
+    setBDisabled(true);
+
+    const requestBody = {
+      productName: productInfo?.title,
+      productType: productInfo?.type,
+      productSlug: productInfo?._id,
+      productImageUrl: imagesUrls[0],
+      productSelectedSize: selectedSize,
+      productQuantity: quantity,
+      productPrice: productInfo?.price,
+    };
+
+    try {
+      const response = await fetch(`${baseUrl}api/addToCart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `${identifier}` },
+        body: JSON.stringify(requestBody),
+        cache: 'no-store',
+      });
+
+      const responseData = await response.json();
+      toast.dismiss(toastId);
+      console.log(responseData.cart)
+      const resp = responseData.cart;
+      debugger;
+      if (resp && resp.length > 0) {
+        if (dmContext) {
+          dmContext.incCartItems(quantity);
+        }
+        toast.success('Added to cart');
+      } else {
+        toast.error('Adding to cart failed');
+      }
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error('Adding to cart failed');
+    } finally {
+      setBDisabled(false);
+    }
   }
   return (
     <div className='mx-auto flex max-w-[1560px] flex-wrap justify-center gap-5 rounded-xl bg-[#f3f3f35d] px-5 py-12 sm:px-10 md:px-16 lg:px-20'>
@@ -98,11 +151,11 @@ export default function ProductInformation() {
                 {productInfo?.size.map((size, ind) => (
                   <p
                     key={ind}
-                    className={`w-10 cursor-pointer rounded-full p-2 text-center ${index == ind ? 'bg-[#212121] text-white' : 'bg-gray-200'
+                    className={`w-10 cursor-pointer rounded-full p-2 text-center ${sizeIndex == ind ? 'bg-[#212121] text-white' : 'bg-gray-200'
                       }`}
                     onClick={() => {
-                      setIndex(ind);
-                      setSize(size);
+                      setSizeIndex(ind);
+                      setSelectedSize(size);
                     }}
                   >
                     {size}
@@ -139,18 +192,17 @@ export default function ProductInformation() {
               </p>
             </div>
             <div className='flex items-center space-x-5'>
-              {/* <button
-          className={`w-fitt inline-flex space-x-2 bg-[#212121] px-8 py-4 focus-visible:bg-[#212121] ${
-            !bDisabled
-              ? 'cursor-pointer'
-              : 'cursor-not-allowed disabled:opacity-50'
-          }`}
-          onClick={addToCart}
-          disabled={bDisabled}
-        >
-          <ShoppingCart size={20} />
-          <span className='whitespace-nowrap'>Add to Cart</span>
-        </button> */}
+              <Button
+                className={`w-fitt inline-flex space-x-2 bg-[#212121] px-8 py-4 focus-visible:bg-[#212121] ${!bDisabled
+                  ? 'cursor-pointer'
+                  : 'cursor-not-allowed disabled:opacity-50'
+                  }`}
+                onClick={addToCart}
+                disabled={bDisabled}
+              >
+                <ShoppingCart size={20} />
+                <span className='whitespace-nowrap text-white'>Add to Cart</span>
+              </Button>
             </div>
             <Toaster position='top-center' />
           </div>

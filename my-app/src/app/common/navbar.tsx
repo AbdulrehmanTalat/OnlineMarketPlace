@@ -1,23 +1,70 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { RiSearchLine, RiShoppingCartLine, RiMenuLine, RiCloseLine } from 'react-icons/ri';
 import logo from '../../../public/images/Logo.webp';
 import Link from 'next/link';
 import { getUserIdentifier, setUserIdentifier } from '@/lib/cookie';
 import { v4 as uuidv4 } from 'uuid';
-
+import { DineMarketContext } from '../../app/context/DineMarketContext';
+import { usePathname } from 'next/navigation';
+import { useUser } from 'sanity';
 const Navbar = () => {
   const [showCart, setShowCart] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
+  const [loading, setLoading] = useState(true);
+  // to reftch from db
+  const [reFetch, setReFetch] = useState(false);
+
+  const dmContext = useContext(DineMarketContext);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const pathname = usePathname()
+
+  async function getNumCartItems(userId: string) {
+    fetch(`${baseUrl}api/numCartItems?userId=${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${userId}`,
+      },
+      cache: 'no-store',
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response[0].numItems) {
+          if (typeof dmContext?.setCartItems === 'function') {
+            dmContext?.setCartItems(response[0].numItems);
+          }
+        } else {
+          if (typeof dmContext?.setCartItems === 'function') {
+            dmContext?.setCartItems(0);
+          }
+        }
+      })
+      .catch(() => {
+        if (typeof dmContext?.setCartItems === 'function') {
+          dmContext?.setCartItems(0);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        if (typeof dmContext?.setNbFetchCompleted === 'function') {
+          dmContext.setNbFetchCompleted(true);
+        }
+      });
+  }
+
   useEffect(() => {
     const identifier = getUserIdentifier();
     if (!identifier) {
       const newIdentifier = uuidv4();
       setUserIdentifier(newIdentifier);
-    } 
+      setReFetch(!reFetch);
+    } else {
+      getNumCartItems(identifier);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reFetch]);
   return (
     <nav className="bg-white">
       <div className="container mx-auto px-4 py-4 md:py-6">
@@ -60,15 +107,19 @@ const Navbar = () => {
             </div>
             <div className="relative flex items-center">
               <div className="absolute flex items-center justify-center top-[-20px] right-[-10px] w-6 h-6 bg-red-500 rounded-full text-white text-xs">
-                0
+                {dmContext?.cartItems}
               </div>
               {showCart ? (
                 <div className="flex items-center space-x-1 focus:outline-none cursor-pointer" onClick={() => setShowCart(false)}>
-                  <RiShoppingCartLine size={22} className="text-gray-700" />
+                  <Link href={'CartPage'}>
+                    <RiShoppingCartLine size={22} className="text-gray-700" />
+                  </Link>
                 </div>
               ) : (
                 <button className="flex items-center space-x-1 focus:outline-none" onClick={() => setShowCart(true)}>
-                  <RiShoppingCartLine size={22} className="text-gray-700" />
+                  <Link href={'CartPage'}>
+                    <RiShoppingCartLine size={22} className="text-gray-700" />
+                  </Link>
                 </button>
               )}
             </div>
@@ -97,15 +148,15 @@ const Navbar = () => {
           <div className="md:hidden flex flex-col items-center justify-center bg-gray-100 py-4">
             <div className="relative flex items-center">
               <div className="absolute flex items-center justify-center top-[-20px] right-[-10px] w-6 h-6 bg-red-500 rounded-full text-white text-xs">
-                0
+                {dmContext?.cartItems}
               </div>
               {showCart ? (
                 <div className="flex items-center space-x-1 focus:outline-none cursor-pointer" onClick={() => setShowCart(false)}>
-                  <RiShoppingCartLine size={22} className="text-gray-700" />
+                  <Link href={'CartPage'}><RiShoppingCartLine size={22} className="text-gray-700" /></Link>
                 </div>
               ) : (
                 <button className="flex items-center space-x-1 focus:outline-none" onClick={() => setShowCart(true)}>
-                  <RiShoppingCartLine size={22} className="text-gray-700" />
+                  <Link href={'CartPage'}><RiShoppingCartLine size={22} className="text-gray-700" /></Link>
                 </button>
               )}
             </div>

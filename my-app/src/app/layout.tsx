@@ -1,6 +1,7 @@
 
 import Footer from './common/footer'
 import Navbar from './common/navbar'
+import { DineMarketContextProvider } from './context/DineMarketContext'
 import './globals.css'
 import { Inter } from 'next/font/google'
 
@@ -20,9 +21,11 @@ export default function RootLayout({
     <html lang="en">
 
       <body className={inter.className}>
-        <Navbar></Navbar>
-        {children}
-        <Footer></Footer>
+        <DineMarketContextProvider>
+          <Navbar></Navbar>
+          {children}
+          <Footer></Footer>
+        </DineMarketContextProvider>
       </body>
 
     </html>
