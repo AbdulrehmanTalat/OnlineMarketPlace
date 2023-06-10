@@ -33,6 +33,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
     const toastId = toast.loading('trying checkout');
     setBDisabled(true);
     const stripe = await getStripePromise();
+    debugger;
     fetch(`${baseUrl}api/checkout`, {
       method: 'POST',
       headers: { Authorization: userId, 'Content-Type': 'application/json' },
@@ -41,6 +42,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       .then((response) => response.json())
       .then((response) => {
         toast.dismiss(toastId);
+        debugger;
         if (response.success === false || !stripe) {
           toast.error('checkout failed');
         } else {

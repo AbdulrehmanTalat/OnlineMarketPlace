@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
           };
           const session = await stripe.checkout.sessions.create(params);
+          console.log(session)
           return NextResponse.json(session, { status: 200 });
 
         } else {
