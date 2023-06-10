@@ -43,12 +43,14 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       .then((response) => {
         toast.dismiss(toastId);
         debugger;
-        if (response.success === false || !stripe) {
-          toast.error('checkout failed');
-        } else {
-          toast.loading('Redirecting...');
-          stripe.redirectToCheckout({ sessionId: response.id });
-        }
+        // if (response.success === false || !stripe) {
+        //   toast.error('checkout failed');
+        // } else {
+          if (stripe) {
+            toast.loading('Redirecting...');
+            stripe.redirectToCheckout({ sessionId: response.id });
+          }
+        // }
       })
       .catch(() => {
         toast.dismiss(toastId);
@@ -107,11 +109,10 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         <span>${price}</span>
       </p>
       <button
-        className={`w-full whitespace-nowrap rounded-md bg-[#212121] px-3 py-2 text-white ${
-          !bDisabled
+        className={`w-full whitespace-nowrap rounded-md bg-[#212121] px-3 py-2 text-white ${!bDisabled
             ? 'cursor-pointer'
             : 'cursor-not-allowed disabled:opacity-50'
-        }`}
+          }`}
         onClick={checkoutHandle}
         disabled={bDisabled}
       >
