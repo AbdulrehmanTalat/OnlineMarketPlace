@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
             payment_method_types: ['card'],
             billing_address_collection: 'auto',
             shipping_options: [
-              { shipping_rate: 'shr_1NEdkSEufmmnsAjuqNPXtJRu' },
               { shipping_rate: 'shr_1NEd4OEufmmnsAjuZ1xEu9aZ' },
               { shipping_rate: 'shr_1NEd7PEufmmnsAjuYQZ78HXw' },
             ],
